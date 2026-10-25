@@ -29,3 +29,16 @@ source venv/bin/activate       # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
+
+```
+## 6. Citation
+
+If you use this codebase or data in your research, please cite:
+
+```bibtex
+@article{alif2026measles,
+  title={Context-Dependent Model Suitability in Epidemiological Forecasting: Evidence from Bangladesh Measles Surveillance},
+  author={Alif, Jubayer Samse and Tabassum, Jannatul and Islam, MD. Sobay Miraj and Najaf, Shahoriar and Kabir, Md. Firoz},
+  year={2026},
+  url={https://github.com/jjforjhon/Context-Dependent-Model-Suitability-in-Epidemiological-Forecasting}
+}
