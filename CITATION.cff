@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "Samse Alif"
+    given-names: "Jubayer"
+  - family-names: "Tabassum"
+    given-names: "Jannatul"
+  - family-names: "Islam"
+    given-names: "MD. Sobay Miraj"
+  - family-names: "Najaf"
+    given-names: "Shahoriar"
+  - family-names: "Kabir"
+    given-names: "Md. Firoz"
+title: "Context-Dependent Model Suitability in Epidemiological Forecasting"
+version: 1.0.0
+date-released: 2026-08-01
+url: ""

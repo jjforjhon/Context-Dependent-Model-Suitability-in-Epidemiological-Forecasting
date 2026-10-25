@@ -1,0 +1,10 @@
+\begin{tabular}{ll}
+\toprule
+Model & Hyperparameters \\
+\midrule
+XGBoost & {'model__max_depth': [3, 5, 7], 'model__learning_rate': [0.01, 0.1, 0.2], 'model__n_estimators': [100, 300, 500], 'model__subsample': [0.8, 1.0], 'model__colsample_bytree': [0.8, 1.0]} \\
+LightGBM & {'model__num_leaves': [31, 50, 100], 'model__learning_rate': [0.01, 0.1, 0.2], 'model__n_estimators': [100, 300, 500], 'model__subsample': [0.8, 1.0], 'model__colsample_bytree': [0.8, 1.0]} \\
+SVR & {'model__C': [0.1, 1.0, 10.0, 100.0], 'model__epsilon': [0.01, 0.1, 0.2], 'model__kernel': ['rbf']} \\
+MLP & {'model__hidden_layer_sizes': [(50,), (100,), (50, 50), (100, 50)], 'model__learning_rate_init': [0.001, 0.01, 0.1], 'model__max_iter': [500, 1000], 'model__alpha': [0.0001, 0.001, 0.01]} \\
+\bottomrule
+\end{tabular}

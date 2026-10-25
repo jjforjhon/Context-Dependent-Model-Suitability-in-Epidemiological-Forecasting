@@ -1,0 +1,13 @@
+\begin{tabular}{llrrr}
+\toprule
+Model_1 & Model_2 & DM_stat & p_value & Significant \\
+\midrule
+XGBoost_Trends & ETS & 3.341943 & 0.000832 & True \\
+SVR_Trends & ETS & 2.357019 & 0.018422 & True \\
+MLP_Base & ETS & 2.063937 & 0.039024 & True \\
+Drift & ETS & -0.735386 & 0.462104 & False \\
+XGBoost_Trends & SARIMAX & 1.769530 & 0.076806 & False \\
+SVR_Trends & SARIMAX & 2.196500 & 0.028056 & True \\
+Drift & Zeros & -5.884706 & 0.000000 & True \\
+\bottomrule
+\end{tabular}

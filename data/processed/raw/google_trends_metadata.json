@@ -1,0 +1,23 @@
+{
+  "collection_timestamp_utc": "2026-07-30T19:36:47.751230Z",
+  "collection_timestamp_local": "2026-07-31T01:36:47.751516",
+  "search_terms": [
+    "measles",
+    "হাম"
+  ],
+  "geographic_filter": "BD",
+  "geographic_name": "Bangladesh",
+  "phase1_timeframe": "2012-01-01 2025-12-31",
+  "phase2_start": "2026-04-01",
+  "phase2_end": "2026-07-31",
+  "pytrends_version": "4.9.2",
+  "python_version": "3.14.4 (tags/v3.14.4:23116f9, Apr  7 2026, 14:10:54) [MSC v.1944 64 bit (AMD64)]",
+  "notes": [
+    "Google Trends returns RELATIVE search interest (0-100), not absolute search volume.",
+    "Values may differ if re-downloaded at a later date due to Google's re-normalization.",
+    "trends_combined = max(measles, হাম) per time period.",
+    "Phase 2 daily data was collected in two overlapping chunks and normalized using overlap-period scaling."
+  ],
+  "data_source": "Google Trends via pytrends (unofficial API)",
+  "citation": "Google Trends (https://trends.google.com). Accessed via pytrends Python library."
+}
