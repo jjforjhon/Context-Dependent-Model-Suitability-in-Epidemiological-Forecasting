@@ -38,7 +38,7 @@ If you use this codebase or data in your research, please cite:
 ```bibtex
 @article{alif2026measles,
   title={Context-Dependent Model Suitability in Epidemiological Forecasting: Evidence from Bangladesh Measles Surveillance},
-  author={Alif, Jubayer Samse and Tabassum, Jannatul and Islam, MD. Sobay Miraj and Najaf, Shahoriar and Kabir, Md. Firoz},
+  author={Alif, Jubayer Samse and Kabir, Md. Firoz and Tabassum, Jannatul and Islam, MD. Sobay Miraj and Najaf, Shahoriar},
   year={2026},
   url={https://github.com/jjforjhon/Context-Dependent-Model-Suitability-in-Epidemiological-Forecasting}
 }
