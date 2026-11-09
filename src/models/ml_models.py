@@ -64,7 +64,7 @@ def fit_predict_lightgbm(X_train, y_train, X_test, y_test) -> Dict[str, Any]:
         'n_estimators': [100, 200, 500],
         'max_depth': [3, 5, 7],
         'learning_rate': [0.01, 0.05, 0.1],
-        'min_child_samples': [5, 10, 20],  # Equivalent to min_child_weight
+        'min_child_samples': [5, 10, 20], 
         'subsample': [0.8, 1.0]
     }
     
