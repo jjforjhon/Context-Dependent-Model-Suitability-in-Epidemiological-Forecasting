@@ -20,7 +20,7 @@ def mean_absolute_percentage_error_custom(y_true, y_pred):
 def symmetric_mean_absolute_percentage_error(y_true, y_pred):
     """Calculate sMAPE."""
     denominator = (np.abs(y_true) + np.abs(y_pred)) / 2.0
-    # Handle zeros in both true and pred
+
     diff = np.abs(y_true - y_pred)
     smape = np.where(denominator == 0, 0, diff / denominator)
     return np.mean(smape) * 100
@@ -82,8 +82,6 @@ def format_metrics_table(results_dict: Dict[str, Dict[str, float]]) -> pd.DataFr
         DataFrame with formatted metrics
     """
     df = pd.DataFrame(results_dict).T
-    
-    # Optionally round and format for presentation
     df = df.round(3)
     
     return df
