@@ -40,7 +40,7 @@ def diebold_mariano_test(y_true, pred1, pred2, h=1, loss_type='mse'):
     d = e1 - e2
     mean_d = np.mean(d)
     
-    # Autocovariance estimation
+ 
     T = len(d)
     def autocovariance(k):
         return np.mean((d[k:] - mean_d) * (d[:T-k] - mean_d))
@@ -55,7 +55,7 @@ def diebold_mariano_test(y_true, pred1, pred2, h=1, loss_type='mse'):
         
     dm_stat = mean_d / np.sqrt(var_d)
     
-    # Two-sided p-value
+ 
     p_value = 2 * (1 - stats.norm.cdf(abs(dm_stat)))
     
     return dm_stat, p_value
@@ -94,5 +94,5 @@ def create_comparison_summary(errors_dict, h=1):
         errors_dict: Dict of model_name -> predictions
         y_true: True values
     """
-    # Note: Requires y_true in scope or passed. Assuming predictions only for DM.
-    pass # Implementation detail, placeholder for actual comparison matrix if needed.
+
+    pass 
