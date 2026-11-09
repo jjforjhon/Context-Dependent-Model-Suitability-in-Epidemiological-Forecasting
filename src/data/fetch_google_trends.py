@@ -53,45 +53,34 @@ from typing import Optional
 import pandas as pd
 from pytrends.request import TrendReq
 
-# ---------------------------------------------------------------------------
-# Configuration
-# ---------------------------------------------------------------------------
 
-# Search terms: English and Bengali for "measles"
 SEARCH_TERMS: list[str] = ["measles", "হাম"]
 
-# Geographic filter: Bangladesh
+
 GEO: str = "BD"
 
-# Output directory
+
 OUTPUT_DIR: Path = Path("data/google_trends")
 
-# Time periods for data collection
-# Phase 1: Monthly data (2012-01 to 2025-12)
+
 PHASE1_TIMEFRAME: str = "2012-01-01 2025-12-31"
 
-# Phase 2: Daily data (2026-04-01 to 2026-07-31)
-# Note: For daily resolution, we need to request periods < 90 days
+
 PHASE2_START: str = "2026-04-01"
 PHASE2_END: str = "2026-07-31"
 
-# Rate limiting: seconds to wait between API requests
-# Google Trends aggressively rate-limits; be conservative
 WAIT_BETWEEN_REQUESTS: int = 15
 
-# Retry configuration
 MAX_RETRIES: int = 3
-RETRY_WAIT: int = 60  # seconds
+RETRY_WAIT: int = 60  
 
-# Logging
+
 LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(message)s"
 logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)
 logger = logging.getLogger(__name__)
 
 
-# ---------------------------------------------------------------------------
-# Helper Functions
-# ---------------------------------------------------------------------------
+
 
 def create_output_directory(output_dir: Path) -> None:
     """Create the output directory if it doesn't exist."""
@@ -101,7 +90,7 @@ def create_output_directory(output_dir: Path) -> None:
 
 def initialize_pytrends(
     hl: str = "en-US",
-    tz: int = 360,  # Bangladesh is UTC+6 = 360 minutes
+    tz: int = 360,  
 ) -> TrendReq:
     """
     Initialize the pytrends API client.
@@ -129,7 +118,7 @@ def initialize_pytrends(
     pytrends = TrendReq(
         hl=hl,
         tz=tz,
-        retries=0,  # Disable pytrends' built-in retries (compatibility fix)
+        retries=0,  
     )
     logger.info("pytrends client initialized successfully.")
     return pytrends
@@ -171,17 +160,16 @@ def fetch_interest_over_time(
                 f"Fetching {keywords} for {timeframe} in {geo}..."
             )
 
-            # Rate limiting: wait before request
             if wait > 0:
                 logger.info(f"  Waiting {wait}s for rate limiting...")
                 time.sleep(wait)
 
-            # Build payload and fetch
+   
             pytrends.build_payload(
                 kw_list=keywords,
                 timeframe=timeframe,
                 geo=geo,
-                cat=0,  # All categories
+                cat=0,  
             )
             df = pytrends.interest_over_time()
 
@@ -192,7 +180,7 @@ def fetch_interest_over_time(
                 )
                 return pd.DataFrame()
 
-            # Drop the 'isPartial' column if present
+     
             if "isPartial" in df.columns:
                 df = df.drop(columns=["isPartial"])
 
@@ -216,10 +204,6 @@ def fetch_interest_over_time(
 
     return None
 
-
-# ---------------------------------------------------------------------------
-# Phase 1: Monthly Data (2012-2025)
-# ---------------------------------------------------------------------------
 
 def collect_phase1_monthly(pytrends: TrendReq) -> Optional[pd.DataFrame]:
     """
@@ -258,16 +242,12 @@ def collect_phase1_monthly(pytrends: TrendReq) -> Optional[pd.DataFrame]:
         logger.error("Phase 1 collection failed or returned empty data.")
         return None
 
-    # Create combined index: take the maximum of both queries per period
-    # Why max instead of sum: If someone searches in Bengali, they won't
-    # also search in English. Max captures the dominant signal.
     df["trends_combined"] = df[SEARCH_TERMS].max(axis=1)
 
-    # Reset index to get date as a column
+
     df = df.reset_index()
     df = df.rename(columns={"date": "Date"})
 
-    # Create Year_Month column to match our other datasets
     df["Year_Month"] = df["Date"].dt.strftime("%Y-%m")
 
     logger.info(f"Phase 1 result: {len(df)} monthly observations")
@@ -278,9 +258,7 @@ def collect_phase1_monthly(pytrends: TrendReq) -> Optional[pd.DataFrame]:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Phase 2: Daily Data (2026 outbreak period)
-# ---------------------------------------------------------------------------
+
 
 def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
     """
@@ -306,10 +284,6 @@ def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
     logger.info("PHASE 2: Collecting daily data (2026 outbreak)")
     logger.info("=" * 60)
 
-    # Split into two chunks with ~14 days overlap for normalization
-    # Chunk 1: Apr 1 - Jun 15 (76 days, < 90)
-    # Chunk 2: Jun 1 - Jul 31 (61 days, < 90)
-    # Overlap: Jun 1 - Jun 15 (15 days for normalization)
 
     chunk1_tf = "2026-04-01 2026-06-15"
     chunk2_tf = "2026-06-01 2026-07-31"
@@ -339,14 +313,13 @@ def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
         return pd.DataFrame()
 
     if df1.empty or df2.empty:
-        # If one chunk is empty, return the other
+    
         df = df1 if not df1.empty else df2
         df["trends_combined"] = df[SEARCH_TERMS].max(axis=1)
         df = df.reset_index().rename(columns={"date": "Date"})
         return df
 
-    # Normalize Chunk 2 relative to Chunk 1 using the overlap period
-    # Overlap: Jun 1 - Jun 15
+
     overlap_start = pd.Timestamp("2026-06-01")
     overlap_end = pd.Timestamp("2026-06-15")
 
@@ -360,7 +333,7 @@ def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
         )
         df = df1.copy()
     else:
-        # Calculate scaling factor for each keyword
+      
         for kw in SEARCH_TERMS:
             mean_1 = overlap_1[kw].mean()
             mean_2 = overlap_2[kw].mean()
@@ -377,17 +350,17 @@ def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
                     f"  Chunk 2 mean for '{kw}' is 0. Cannot normalize."
                 )
 
-        # Combine: use Chunk 1 up to Jun 15, then Chunk 2 from Jun 16
+
         cutoff = pd.Timestamp("2026-06-16")
         df = pd.concat([
             df1.loc[:pd.Timestamp("2026-06-15")],
             df2.loc[cutoff:],
         ])
 
-    # Create combined index
+
     df["trends_combined"] = df[SEARCH_TERMS].max(axis=1)
 
-    # Reset index
+
     df = df.reset_index()
     df = df.rename(columns={"date": "Date"})
 
@@ -397,9 +370,6 @@ def collect_phase2_daily(pytrends: TrendReq) -> Optional[pd.DataFrame]:
     return df
 
 
-# ---------------------------------------------------------------------------
-# Metadata & Save
-# ---------------------------------------------------------------------------
 
 def save_metadata(output_dir: Path) -> None:
     """
@@ -455,9 +425,6 @@ def save_dataframe(
     logger.info(f"Saved {description}: {filepath} ({len(df)} rows)")
 
 
-# ---------------------------------------------------------------------------
-# Main Execution
-# ---------------------------------------------------------------------------
 
 def main() -> None:
     """
@@ -472,11 +439,11 @@ def main() -> None:
     logger.info("Measles Forecasting in Bangladesh")
     logger.info("=" * 60)
 
-    # Step 1: Setup
+
     create_output_directory(OUTPUT_DIR)
     pytrends = initialize_pytrends()
 
-    # Step 2: Collect Phase 1 (monthly)
+
     df_monthly = collect_phase1_monthly(pytrends)
 
     if df_monthly is not None and not df_monthly.empty:
@@ -486,7 +453,6 @@ def main() -> None:
             "Phase 1 monthly Google Trends data",
         )
 
-        # Print summary statistics
         logger.info("\nPhase 1 Summary:")
         logger.info(f"  Rows: {len(df_monthly)}")
         logger.info(f"  Date range: {df_monthly['Year_Month'].iloc[0]} "
@@ -502,7 +468,7 @@ def main() -> None:
     else:
         logger.error("Phase 1 collection failed. Continuing to Phase 2...")
 
-    # Step 3: Collect Phase 2 (daily)
+
     df_daily = collect_phase2_daily(pytrends)
 
     if df_daily is not None and not df_daily.empty:
@@ -519,10 +485,9 @@ def main() -> None:
     else:
         logger.error("Phase 2 collection failed.")
 
-    # Step 4: Save metadata
+
     save_metadata(OUTPUT_DIR)
 
-    # Step 5: Final report
     logger.info("\n" + "=" * 60)
     logger.info("COLLECTION COMPLETE")
     logger.info("=" * 60)
