@@ -18,7 +18,7 @@ from src.visualization.figures import (
 from src.models.statistical import dm_test
 from src.visualization.tables import _save_table, table6_phase1_dm_test, table16_phase2_dm_test
 
-# Configure logging
+
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
@@ -36,9 +36,7 @@ def main():
     all_metrics = pd.read_csv(metrics_path)
     divisions = all_metrics['Division'].unique()
     
-    # ---------------------------------------------------------
-    # 1. GENERATE INDIVIDUAL FORECAST VISUALIZATIONS
-    # ---------------------------------------------------------
+
     plot_map = {
         "XGBoost_Base": fig14_phase2_XGBoost_Base_division_forecasts,
         "LightGBM_Base": fig15_phase2_LightGBM_Base_division_forecasts,
@@ -78,9 +76,7 @@ def main():
             except Exception as e:
                 logger.error(f"Plot failed for {model_col}: {e}")
 
-    # ---------------------------------------------------------
-    # 2. GENERATE BASE-VS-TRENDS COMPARISON (TABLE 15)
-    # ---------------------------------------------------------
+  
     logger.info("Generating Table 15 (Base vs Trends)...")
     base_metrics = all_metrics[all_metrics['Model'].str.contains('_Base')].copy()
     trends_metrics = all_metrics[all_metrics['Model'].str.contains('_Trends')].copy()
@@ -99,16 +95,13 @@ def main():
         table15_df = merged[['Division', 'Core_Model', 'RMSE_Base', 'RMSE_Trends', 'RMSE_Delta']]
         _save_table(table15_df, "table15_phase2_Base_vs_Trends_Comparison")
     
-    # ---------------------------------------------------------
-    # 3. GENERATE WINNER ANALYSES (FIG 21, 22)
-    # ---------------------------------------------------------
+
     logger.info("Generating Winner Analyses...")
     import matplotlib.pyplot as plt
     
     def _draw_winner_bar(df, title, filename):
         df_clean = df.copy()
-        # Remove the division name from the end of the model string if it exists
-        # e.g., "XGBoost_Base_Barishal" -> "XGBoost_Base"
+    
         df_clean['Core_Model'] = df_clean.apply(
             lambda row: row['Model'].replace(f"_{row['Division']}", "") if row['Model'].endswith(f"_{row['Division']}") else row['Model'], 
             axis=1
@@ -134,9 +127,7 @@ def main():
     if not all_metrics.empty:
         _draw_winner_bar(all_metrics, "Phase 2 Division Winners (All Models)", "fig22_phase2_overall_winners")
         
-    # ---------------------------------------------------------
-    # 4. GENERATE HEATMAPS (FIG 11)
-    # ---------------------------------------------------------
+
     logger.info("Generating Heatmap (Fig 11)...")
     if not all_metrics.empty:
         pivot_df = all_metrics.pivot(index="Division", columns="Model", values="RMSE")
@@ -146,12 +137,8 @@ def main():
             logger.error(f"Fig11 failed: {e}")
 
 
-    # ---------------------------------------------------------
-    # 5. STATISTICAL TESTING (DM TESTS)
-    # ---------------------------------------------------------
     logger.info("Computing Statistical Tests (Phase 1 & Phase 2)...")
-    
-    # --- PHASE 1 DM TEST ---
+
     phase1_preds_path = Path("results/phase1/predictions/phase1_preds.csv")
     if phase1_preds_path.exists():
         p1_preds = pd.read_csv(phase1_preds_path)
@@ -182,7 +169,7 @@ def main():
             table6_phase1_dm_test(pd.DataFrame(dm_results_p1))
             logger.info("Generated Table 6 (Phase 1 DM Test).")
             
-    # --- PHASE 2 DM TEST ---
+
     if not all_metrics.empty and preds_dir.exists():
         dm_results_p2 = []
         divisions = all_metrics["Division"].unique()
@@ -199,7 +186,6 @@ def main():
                 continue
             actual2 = p2_preds["Actual"].values
             
-            # Find best ML and best Statistical model for this division
             ml_models = [m for m in div_metrics["Model"] if "XGBoost" in m or "LightGBM" in m or "SVR" in m or "MLP" in m]
             stat_models = [m for m in div_metrics["Model"] if "ARIMAX" in m or "ETS" in m or "Prophet" in m]
             
@@ -209,14 +195,11 @@ def main():
             best_ml = min(ml_models, key=lambda m: div_metrics[div_metrics["Model"] == m]["RMSE"].values[0])
             best_stat = min(stat_models, key=lambda m: div_metrics[div_metrics["Model"] == m]["RMSE"].values[0])
             
-            # Remove division suffix from column names if present
-            # E.g. XGBoost_Base_Dhaka -> XGBoost_Base
+    
             best_ml_col = best_ml
             best_stat_col = best_stat
             
-            # Wait, run_all_phase2.py saves column names as 'XGBoost_Base' or 'XGBoost_Base_Dhaka'?
-            # Let's check columns inside p2_preds!
-            # Usually they are just 'XGBoost_Base' inside the division CSV.
+   
             if best_ml not in p2_preds.columns:
                 best_ml_col = best_ml.replace(f"_{div}", "")
             if best_stat not in p2_preds.columns:
@@ -237,7 +220,7 @@ def main():
                 
         if dm_results_p2:
             p2_df = pd.DataFrame(dm_results_p2)
-            # Apply Benjamini-Hochberg FDR
+
             p_values = p2_df["p_value"].values
             sorted_indices = np.argsort(p_values)
             sorted_p = p_values[sorted_indices]
