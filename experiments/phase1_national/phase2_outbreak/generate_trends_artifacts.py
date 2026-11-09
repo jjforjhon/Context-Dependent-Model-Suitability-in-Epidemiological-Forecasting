@@ -10,7 +10,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def generate():
-    # 1. Generate Tables from metrics CSV
     metrics_csv = RESULTS_DIR / "phase2" / "metrics" / "phase2_metrics.csv"
     if not metrics_csv.exists():
         logger.error("Phase 2 metrics CSV not found!")
@@ -25,8 +24,6 @@ def generate():
     tables.table10_phase2_XGBoost_Trends_results(xgb_trends)
     tables.table11_phase2_LightGBM_Trends_results(lgb_trends)
     tables.table12_phase2_ARIMAX_Trends_results(arima_trends)
-    
-    # 2. Generate Figures from saved models and data
     merged_path = DATA_DIR / "processed" / "phase2_daily_division.csv"
     if not merged_path.exists():
         logger.error("Merged data not found!")
@@ -44,19 +41,19 @@ def generate():
     preds_dir = RESULTS_DIR / "phase2" / "predictions"
     
     for div in divisions:
-        # XGBoost
+   
         xgb_pred_path = preds_dir / f"{div}_XGBoost_Trends_predictions.csv"
         if xgb_pred_path.exists():
             df_xgb = pd.read_csv(xgb_pred_path)
             div_results_xgb[div] = {"df": df_xgb}
             
-        # LightGBM
+
         lgb_pred_path = preds_dir / f"{div}_LightGBM_Trends_predictions.csv"
         if lgb_pred_path.exists():
             df_lgb = pd.read_csv(lgb_pred_path)
             div_results_lgb[div] = {"df": df_lgb}
             
-        # ARIMAX
+  
         arima_pred_path = preds_dir / f"{div}_ARIMA_Trends_predictions.csv"
         if arima_pred_path.exists():
             df_arima = pd.read_csv(arima_pred_path)
