@@ -38,14 +38,14 @@ def residual_diagnostics(residuals, model_name="Model"):
     """
     residuals = np.asarray(residuals)
     
-    # Ljung-Box test for autocorrelation (using default lags)
+
     lb_test = acorr_ljungbox(residuals, return_df=True)
-    lb_pvalue = lb_test['lb_pvalue'].min() # Min p-value across lags
+    lb_pvalue = lb_test['lb_pvalue'].min() 
     
-    # Shapiro-Wilk test for normality
+
     sw_stat, sw_pvalue = stats.shapiro(residuals)
     
-    # Durbin-Watson statistic
+
     dw_stat = durbin_watson(residuals)
     
     results = {
@@ -63,10 +63,10 @@ def plot_residual_diagnostics(residuals, model_name="Model", save_path=None):
     """
     fig, axes = plt.subplots(1, 2, figsize=(12, 4))
     
-    # ACF plot
+
     tsaplots.plot_acf(residuals, ax=axes[0], title=f"{model_name} Residual ACF")
     
-    # Q-Q plot
+
     gofplots.qqplot(residuals, line='s', ax=axes[1])
     axes[1].set_title(f"{model_name} Residual Q-Q Plot")
     
