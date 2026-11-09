@@ -26,10 +26,6 @@ logger = logging.getLogger(__name__)
 RANDOM_SEED = 42
 
 
-# ============================================================
-# ONE-STEP-AHEAD FUNCTIONS (for harmonized protocol)
-# ============================================================
-
 def fit_sarimax(y_hist, exog_hist, order=(1,1,1), seasonal_order=(1,1,1,12)):
     """
     Fit SARIMAX model on historical data with exogenous variables.
@@ -72,7 +68,7 @@ def forecast_sarimax_one_step(model_fit, exog_next):
     """
     try:
         pred = model_fit.get_forecast(steps=1, exog=exog_next)
-        # pred.predicted_mean may be numpy array or pandas Series
+    
         pm = pred.predicted_mean
         return float(pm[0] if hasattr(pm, '__getitem__') else pm)
     except Exception as e:
@@ -233,17 +229,12 @@ def forecast_arima_one_step(model_fit, exog_next):
     """
     try:
         pred = model_fit.get_forecast(steps=1, exog=exog_next)
-        # pred.predicted_mean may be numpy array or pandas Series
+  
         pm = pred.predicted_mean
         return float(pm[0] if hasattr(pm, '__getitem__') else pm)
     except Exception as e:
         logger.error(f"ARIMA one-step forecast failed: {e}")
         raise
-
-
-# ============================================================
-# MULTI-STEP FUNCTIONS (original, for reference)
-# ============================================================
 
 def fit_predict_sarima(
     train_df: pd.DataFrame, 
@@ -283,7 +274,7 @@ def fit_predict_sarima(
             order = model.order
             seasonal_order = model.seasonal_order
         else:
-            # Fallback to manual selection
+  
             order = (1, 1, 1)
             seasonal_order = (1, 1, 1, 12)
            
@@ -350,8 +341,6 @@ def fit_predict_ets(
     for t in trends:
         for s in seasonals:
             try:
-                # Additive or multiplicative seasonality requires strictly positive data for 'mul'
-                # Let's handle it gracefully
                 if (t == 'mul' or s == 'mul') and (y_train <= 0).any():
                     continue
                    
@@ -415,7 +404,7 @@ def fit_predict_prophet(
     logger.info("Starting Prophet modeling...")
     
     try:
-        # Prepare data for Prophet
+
         prophet_train = pd.DataFrame({
             'ds': train_df[date_col],
             'y': train_df[target_col]
@@ -433,7 +422,7 @@ def fit_predict_prophet(
         model = Prophet(
             yearly_seasonality=True,
             weekly_seasonality=False,
-            changepoint_prior_scale=0.05  # Ideally tuned via CV
+            changepoint_prior_scale=0.05 
         )
        
         if exog_cols:
@@ -442,11 +431,11 @@ def fit_predict_prophet(
                
         model.fit(prophet_train)
        
-        # Predictions on train to get train_preds
+    
         train_forecast = model.predict(prophet_train)
         train_preds = train_forecast['yhat'].values
        
-        # Predictions on test
+
         test_forecast = model.predict(prophet_test)
         preds = test_forecast['yhat'].values
        
